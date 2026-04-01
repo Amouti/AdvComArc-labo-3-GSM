@@ -1,3 +1,6 @@
+#AdvComArc Mouti Amir, Barreira Romero Adrian
+#This is an implementation found on github, functions were added at the end
+
 # Written by Aayush Dixit, works with Python 3, encryption and decryption supported given 64-bit key
 import re
 import copy
