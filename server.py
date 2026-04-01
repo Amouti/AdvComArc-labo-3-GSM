@@ -3,10 +3,21 @@ import secrets
 import os
 from a51 import A5_dec, A5_enc
 from comp128.comp128v23 import Comp128v23
+from datetime import datetime, timedelta
 
 HOST = "127.0.0.1"
 PORT = 5000
 MAX_BYTES = 32
+
+import time
+
+def generate_timestamp():
+    """Return a UNIX timestamp (float)."""
+    return time.time()
+
+def is_within_20_minutes(ts):
+    """Check if less than 20 minutes have passed since the timestamp."""
+    return (time.time() - ts) < 20 * 60
 
 
 users = {
@@ -31,9 +42,12 @@ def start_server():
             imsi = conn.recv(1024)
             print(f"[+] Received IMSI: {imsi}")
 
-            Ki = users[imsi]
 
-            #TODO check for no match
+            if not (imsi in users):
+                print("user doesn't existS")
+                return
+
+            Ki = users[imsi]
 
             print(f"[+] Using Ki = {Ki}")
 
@@ -41,7 +55,7 @@ def start_server():
 
             chall = generate_challenge()
             v3_sres, v3_kc = Comp128v23().comp128v3(Ki, chall)
-            #TODO generate timsestamp
+            timestamp = generate_timestamp()
 
             print(f"[+] Generated challenge: {chall} -> SRES: {v3_sres} and temporary key {v3_kc}")
 
@@ -72,13 +86,15 @@ def start_server():
 
             print(f"[+] Received message: {enc_msg}")
 
-            #TODO check timestamp
+            if not is_within_20_minutes(timestamp):
+                print("key expired")
+                return
 
             dec_msg = A5_dec(enc_msg, v3_kc)
 
             print(f"Message decrypted: {dec_msg}")
 
-            conn.sendall(A5_enc(b"asdfasd", v3_kc))
+            conn.sendall(A5_enc(b"this is another 248 bit message", v3_kc))
 
                 
 

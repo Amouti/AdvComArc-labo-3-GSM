@@ -34,25 +34,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     #=== Start of encrypted communication
 
-    input_file = "file.txt"
-    output_dir = "received_client"
-    os.makedirs(output_dir, exist_ok=True)
+    message = b'this is a 248 bit message111111'
 
-    with open(input_file, "rb") as f:
-        data = f.read()
-
-    if len(data) > MAX_BYTES:
-        raise ValueError(f"File too large: {len(data)} bytes (max {MAX_BYTES} bytes)")
+    if len(message) > MAX_BYTES:
+        raise ValueError(f"File too large: {len(message)} bytes (max {MAX_BYTES} bytes)")
     
     #send encrypted message
-    c = A5_enc(data, v3_kc)
+    c = A5_enc(message, v3_kc)
 
     s.sendall(c)
 
 
     c = s.recv(1024)
-    print(c)
-    print(A5_dec(c, v3_kc))
+    print("received cipher:",c)
+    print("deciphered message:",A5_dec(c, v3_kc))
 
 
 
